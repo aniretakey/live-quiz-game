@@ -9,6 +9,16 @@ export enum CommandTypes {
     QUESTION_RESULT = "question_result",
 }
 
+export enum ResponseTypes {
+    REGISTER = "reg",
+    GAME_CREATED = "game_created",
+    GAME_JOINED = "game_joined",
+    PLAYER_JOINED = "player_joined",
+    UPDATE_PLAYERS = 'update_players',
+    ANSWER_ACCEPTED = "answer_accepted",
+    GAME_FINISHED = "game_finished",
+}
+
 export interface Player {
     name: string;
     index: string;

@@ -1,4 +1,4 @@
-import { CommandTypes } from "../types";
+import { ResponseTypes } from "../types";
 
 export interface RegRequest {
     name: string;
@@ -6,7 +6,7 @@ export interface RegRequest {
 }
 
 export interface RegResponse {
-    type: CommandTypes.REGISTER;
+    type: ResponseTypes.REGISTER;
     data: {
         name: string;
         index: string | number;
