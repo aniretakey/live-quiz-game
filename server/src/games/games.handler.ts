@@ -40,6 +40,7 @@ export function createGame(ws: WebSocket, data: CreateGameRequest['data'], games
         status: "waiting",
         playerAnswers: new Map()
     };
+    addPlayerToGame(newGame, host, ws);
 
     games.push(newGame);
 
@@ -73,7 +74,6 @@ export function addPlayerToGame(
 export function notifyPlayers(
     game: Game,
     playerName: string,
-    host: User
 ): void {
     const notification: PlayerJoinNotification = {
         type: ResponseTypes.PLAYER_JOINED,
@@ -97,10 +97,6 @@ export function notifyPlayers(
     };
 
     broadcastToGame(game, updatePlayers);
-
-    if (host.ws && host.ws.readyState === WebSocket.OPEN) {
-        host.ws.send(JSON.stringify(updatePlayers));
-    }
 }
 
 export function joinGame(
@@ -141,7 +137,7 @@ export function joinGame(
     const host = users.find(u => u.index === game.hostId);
 
     if (host) {
-        notifyPlayers(game, user.name, host);
+        notifyPlayers(game, user.name);
     } else {
         const notification: PlayerJoinNotification = {
             type: ResponseTypes.PLAYER_JOINED,
