@@ -1,7 +1,7 @@
 import WebSocket, { WebSocketServer } from 'ws';
 import { CommandTypes, Game, User } from "./types";
 import { handleReg } from "./auth/auth.handler";
-import { createGame } from "./games/games.handler";
+import { createGame, joinGame } from "./games/games.handler";
 import { getUserByWs } from "./utils/getUserByWs";
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
@@ -38,9 +38,13 @@ wss.on('connection', (ws: WebSocket) => {
         const user = getUserByWs(ws, users);
 
         if (user) {
-
             if (commandType === CommandTypes.CREATE_GAME) {
                 createGame(ws, command.data, games, user);
+                return;
+            }
+
+            if (commandType === CommandTypes.JOIN_GAME) {
+                joinGame(ws, command.data, games, user);
                 return;
             }
         }

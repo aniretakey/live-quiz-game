@@ -24,3 +24,38 @@ export type CreateGameError = {
     };
     id: 0;
 };
+
+export type JoinGameRequest = {
+    "type": CommandTypes.JOIN_GAME,
+    "data": {
+        "code": string
+    },
+    "id": 0
+}
+
+export type JoinGameResponse = {
+    "type": ResponseTypes.GAME_JOINED,
+    "data": {
+        "gameId": string
+    },
+    "id": 0
+}
+
+export type PlayerJoinNotification = {
+    "type": ResponseTypes.PLAYER_JOINED,
+    "data": {
+        "playerName": string,
+        "playerCount": number
+    },
+    "id": 0
+}
+
+export type UpdatePlayersResponse = {
+    type: ResponseTypes.UPDATE_PLAYERS,
+    data: {
+        name: string;
+        index: string | number;
+        score: number;
+    }[];
+    id: 0;
+}
