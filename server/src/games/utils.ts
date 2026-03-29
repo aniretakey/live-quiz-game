@@ -4,6 +4,10 @@ export const getGameByCode = (gameCode: string, games: Game[]) => {
     return games.find((game) => game.code === gameCode)
 }
 
+export const getGameById = (gameId: string, games: Game[]) => {
+    return games.find((game) => game.id === gameId)
+}
+
 export function broadcastToGame(game: Game, msg: any) {
     game.players.forEach((player) => {
         if (player.ws) {
