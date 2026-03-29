@@ -158,6 +158,7 @@ export function joinGame(
                 name: player.name,
                 index: player.index,
                 score: player.score,
+                ws: player.ws
             })),
             id: 0,
         };
