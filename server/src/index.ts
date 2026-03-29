@@ -1,6 +1,6 @@
-import WebSocket, {WebSocketServer} from 'ws';
-import {User} from "./types";
-import {handleReg} from "./auth/auth.handler";
+import WebSocket, { WebSocketServer } from 'ws';
+import { CommandTypes, User } from "./types";
+import { handleReg } from "./auth/auth.handler";
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
@@ -10,15 +10,6 @@ const wss = new WebSocketServer({port: PORT});
 const clients: WebSocket[] = []
 
 const users: User[] = [];
-
-export enum CommandTypes {
-    REGISTER = "reg",
-    CREATE_GAME = "create_game",
-    JOIN_GAME = "join_game",
-    START_GAME = "start_game",
-    ANSWER = "answer",
-    QUESTION_RESULT = "question_result",
-}
 
 wss.on('connection', (ws: WebSocket) => {
     console.log('Connected!');
@@ -35,7 +26,6 @@ wss.on('connection', (ws: WebSocket) => {
                 client.send(msg);
             }
         });
-
 
         if (commandType === CommandTypes.REGISTER) {
             handleReg(ws, command.data, users);

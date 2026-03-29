@@ -1,6 +1,6 @@
 import WebSocket from "ws";
 import { RegRequest, RegResponse } from "./auth.types";
-import { User } from "../types";
+import { CommandTypes, User } from "../types";
 import { randomUUID } from "node:crypto";
 
 export function handleReg(ws: WebSocket, data: RegRequest, users: User[]): void {
@@ -19,7 +19,7 @@ export function handleReg(ws: WebSocket, data: RegRequest, users: User[]): void 
         users.push(newUser);
 
         const response: RegResponse = {
-            type: "reg",
+            type: CommandTypes.REGISTER,
             data: {
                 name,
                 index: newUser.index,
@@ -35,7 +35,7 @@ export function handleReg(ws: WebSocket, data: RegRequest, users: User[]): void 
 
     if (user.password !== password) {
         const response: RegResponse = {
-            type: "reg",
+            type: CommandTypes.REGISTER,
             data: {
                 name,
                 index: user.index,
@@ -50,7 +50,7 @@ export function handleReg(ws: WebSocket, data: RegRequest, users: User[]): void 
     }
 
     const response: RegResponse = {
-        type: "reg",
+        type: CommandTypes.REGISTER,
         data: {
             name,
             index: user.index,

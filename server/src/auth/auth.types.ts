@@ -1,10 +1,12 @@
+import { CommandTypes } from "../types";
+
 export interface RegRequest {
     name: string;
     password: string;
 }
 
 export interface RegResponse {
-    type: "reg";
+    type: CommandTypes.REGISTER;
     data: {
         name: string;
         index: string | number;
