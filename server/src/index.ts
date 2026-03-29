@@ -3,6 +3,7 @@ import { CommandTypes, Game, User } from "./types";
 import { handleReg } from "./auth/auth.handler";
 import { createGame, joinGame } from "./games/games.handler";
 import { getUserByWs } from "./utils/getUserByWs";
+import { startGame } from "./games/game_logic";
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
@@ -35,6 +36,12 @@ wss.on('connection', (ws: WebSocket) => {
             case CommandTypes.JOIN_GAME:
                 if (user) {
                     joinGame(ws, command.data, games, user, users);
+                }
+                return;
+
+            case CommandTypes.START_GAME:
+                if (user) {
+                    startGame(command.data, games, user)
                 }
                 return;
 
