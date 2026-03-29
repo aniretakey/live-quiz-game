@@ -187,3 +187,51 @@ export function handleAnswer(
         finishQuestion(game);
     }
 }
+
+export function handleDisconnect(
+    ws: WebSocket,
+    users: User[],
+    games: Game[]
+) {
+    const user = users.find(user => user.ws === ws);
+    if (!user) {
+        return;
+    }
+
+    games.forEach(game => {
+        const playerIndex = game.players.findIndex(
+            player => String(player.index) === String(user.index)
+        );
+
+        if (playerIndex === -1) return;
+
+        game.players.splice(playerIndex, 1);
+
+        game.playerAnswers.delete(user.index);
+
+        broadcastToGame(game, {
+            type: ResponseTypes.UPDATE_PLAYERS,
+            data: game.players.map(player => ({
+                name: player.name,
+                index: player.index,
+                score: player.score,
+            })),
+            id: 0,
+        });
+
+        if (game.status === 'in_progress') {
+            const activePlayers = game.players.filter(
+                player => String(player.index) !== String(game.hostId)
+            );
+
+            const allAnswered = activePlayers.every(player =>
+                game.playerAnswers.has(player.index)
+            );
+
+            if (allAnswered) {
+                clearTimeout(game.questionTimer);
+                finishQuestion(game);
+            }
+        }
+    });
+}

@@ -3,7 +3,7 @@ import { CommandTypes, Game, User } from "./types";
 import { handleReg } from "./auth/auth.handler";
 import { createGame, joinGame } from "./games/games.handler";
 import { getUserByWs } from "./utils/getUserByWs";
-import { handleAnswer, startGame } from "./games/game_logic";
+import { handleAnswer, handleDisconnect, startGame } from "./games/game_logic";
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
@@ -57,7 +57,11 @@ wss.on('connection', (ws: WebSocket) => {
     });
 
     ws.on('close', () => {
+        handleDisconnect(ws, users, games);
+
         const index = clients.indexOf(ws);
-        if (index !== -1) clients.splice(index, 1);
+        if (index !== -1) {
+            clients.splice(index, 1);
+        }
     });
 });
