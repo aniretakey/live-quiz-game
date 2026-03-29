@@ -21,7 +21,7 @@ export const validateQuestions = (questions: Question[]): {
             errorMessage = 'Time limit must be a number';
         }
 
-        if (!correctIndex || Number.isNaN(correctIndex)) {
+        if (Number.isNaN(correctIndex)) {
             isError = true;
             errorMessage = 'Incorrect answer index';
         }
