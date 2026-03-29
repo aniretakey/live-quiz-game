@@ -22,3 +22,12 @@ node_modules/
 
 # Build output
 dist
+/.idea/.gitignore
+/.idea/git_toolbox_blame.xml
+/.idea/live-quiz-game.iml
+/.idea/material_theme_project_new.xml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/prettier.xml
+/.idea/inspectionProfiles/Project_Default.xml
+/.idea/vcs.xml

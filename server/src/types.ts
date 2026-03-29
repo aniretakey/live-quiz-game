@@ -1,67 +1,80 @@
 import type { WebSocket } from 'ws';
 
+export enum CommandTypes {
+    REGISTER = "reg",
+    CREATE_GAME = "create_game",
+    JOIN_GAME = "join_game",
+    START_GAME = "start_game",
+    ANSWER = "answer",
+    QUESTION_RESULT = "question_result",
+}
+
+export enum ResponseTypes {
+    REGISTER = "reg",
+    GAME_CREATED = "game_created",
+    GAME_JOINED = "game_joined",
+    PLAYER_JOINED = "player_joined",
+    UPDATE_PLAYERS = 'update_players',
+    ANSWER_ACCEPTED = "answer_accepted",
+    GAME_FINISHED = "game_finished",
+}
+
 export interface Player {
-  name: string;
-  index: string;
-  score: number;
-  ws?: WebSocket;
-  hasAnswered?: boolean;
-  answerTime?: number;
-  answeredCorrectly?: boolean;
+    name: string;
+    index: string;
+    score: number;
+    ws?: WebSocket;
+    hasAnswered?: boolean;
+    answerTime?: number;
+    answeredCorrectly?: boolean;
 }
 
 export interface Question {
-  text: string;
-  options: string[];
-  correctIndex: number;
-  timeLimitSec: number;
+    text: string;
+    options: string[];
+    correctIndex: number;
+    timeLimitSec: number;
 }
 
 export interface Game {
-  id: string;
-  code: string;
-  hostId: string;
-  questions: Question[];
-  players: Player[];
-  currentQuestion: number;
-  status: 'waiting' | 'in_progress' | 'finished';
-  questionStartTime?: number;
-  questionTimer?: NodeJS.Timeout;
-  playerAnswers: Map<string, { answerIndex: number; timestamp: number }>;
+    id: string;
+    code: string;
+    hostId: string;
+    questions: Question[];
+    players: Player[];
+    currentQuestion: number;
+    status: 'waiting' | 'in_progress' | 'finished';
+    questionStartTime?: number;
+    questionTimer?: NodeJS.Timeout;
+    playerAnswers: Map<string, { answerIndex: number; timestamp: number }>;
 }
 
 export interface User {
-  name: string;
-  password: string;
-  index: string;
-  ws?: WebSocket;
-}
-
-export interface WSMessage {
-  type: string;
-  data: any;
-  id: number;
+    name: string;
+    password: string;
+    index: string;
+    ws?: WebSocket;
 }
 
 export interface RegData {
-  name: string;
-  password: string;
+    name: string;
+    password: string;
 }
 
 export interface CreateGameData {
-  questions: Question[];
+    questions: Question[];
 }
 
 export interface JoinGameData {
-  code: string;
+    code: string;
 }
 
 export interface StartGameData {
-  gameId: string;
+    gameId: string;
 }
 
 export interface AnswerData {
-  gameId: string;
-  questionIndex: number;
-  answerIndex: number;
+    gameId: string;
+    questionIndex: number;
+    answerIndex: number;
 }
