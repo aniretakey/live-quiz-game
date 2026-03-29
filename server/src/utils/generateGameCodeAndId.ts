@@ -6,7 +6,7 @@ function generateCode() {
     for (let i = 0; i < 6; i++) {
         result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return result;
+    return result.toUpperCase();
 }
 
 export const generateGameCodeAndId = (): {
