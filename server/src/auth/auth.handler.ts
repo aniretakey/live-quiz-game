@@ -1,7 +1,7 @@
 import WebSocket from "ws";
-import {RegRequest, RegResponse} from "./auth.types";
-import {User} from "../types";
-import {randomUUID} from "node:crypto";
+import { RegRequest, RegResponse } from "./auth.types";
+import { User } from "../types";
+import { randomUUID } from "node:crypto";
 
 export function handleReg(ws: WebSocket, data: RegRequest, users: User[]): void {
     const {name, password} = data;
