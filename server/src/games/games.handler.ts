@@ -4,7 +4,6 @@ import {
     CreateGameRequest,
     CreateGameResponse,
     JoinGameRequest,
-    JoinGameResponse,
     PlayerJoinNotification,
     UpdatePlayersResponse
 } from "./games.types";
@@ -58,12 +57,14 @@ export function createGame(ws: WebSocket, data: CreateGameRequest['data'], games
 
 export function addPlayerToGame(
     game: Game,
-    user: User
+    user: User,
+    ws: WebSocket,
 ): void {
     const newPlayer: Player = {
         name: user.name,
         index: user.index,
         score: 0,
+        ws
     };
 
     game.players.push(newPlayer);
@@ -112,41 +113,32 @@ export function joinGame(
     const game = getGameByCode(data.code, games);
 
     if (!game) {
-        const errorResponse: CreateGameError = {
+        ws.send(JSON.stringify({
             type: "error",
-            data: {
-                message: `Game with code ${data.code} not found`,
-            },
+            data: {message: `Game with code ${data.code} not found`},
             id: 0,
-        };
-        ws.send(JSON.stringify(errorResponse));
+        }));
         return;
     }
 
     if (game.status !== 'waiting') {
-        const errorResponse: CreateGameError = {
+        ws.send(JSON.stringify({
             type: "error",
-            data: {
-                message: `Game is already in progress`,
-            },
+            data: {message: `Game is already in progress`},
             id: 0,
-        };
-        ws.send(JSON.stringify(errorResponse));
+        }));
         return;
     }
 
-    addPlayerToGame(game, user);
+    addPlayerToGame(game, user, ws);
 
-    const response: JoinGameResponse = {
+    ws.send(JSON.stringify({
         type: ResponseTypes.GAME_JOINED,
-        data: {
-            gameId: game.id,
-        },
+        data: {gameId: game.id},
         id: 0,
-    };
-    ws.send(JSON.stringify(response));
+    }));
 
-    const host = users.find((user) => user.index === game.hostId);
+    const host = users.find(u => u.index === game.hostId);
 
     if (host) {
         notifyPlayers(game, user.name, host);
