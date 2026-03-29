@@ -56,11 +56,58 @@ export function createGame(ws: WebSocket, data: CreateGameRequest['data'], games
     ws.send(JSON.stringify(response));
 }
 
+export function addPlayerToGame(
+    game: Game,
+    user: User
+): void {
+    const newPlayer: Player = {
+        name: user.name,
+        index: user.index,
+        score: 0,
+    };
+
+    game.players.push(newPlayer);
+}
+
+export function notifyPlayers(
+    game: Game,
+    playerName: string,
+    host: User
+): void {
+    const notification: PlayerJoinNotification = {
+        type: ResponseTypes.PLAYER_JOINED,
+        data: {
+            playerName,
+            playerCount: game.players.length,
+        },
+        id: 0,
+    };
+
+    broadcastToGame(game, notification);
+
+    const updatePlayers: UpdatePlayersResponse = {
+        type: ResponseTypes.UPDATE_PLAYERS,
+        data: game.players.map((player) => ({
+            name: player.name,
+            index: player.index,
+            score: player.score,
+        })),
+        id: 0,
+    };
+
+    broadcastToGame(game, updatePlayers);
+
+    if (host.ws && host.ws.readyState === WebSocket.OPEN) {
+        host.ws.send(JSON.stringify(updatePlayers));
+    }
+}
+
 export function joinGame(
     ws: WebSocket,
     data: JoinGameRequest['data'],
     games: Game[],
-    user: User
+    user: User,
+    users: User[]
 ) {
     const game = getGameByCode(data.code, games);
 
@@ -88,13 +135,7 @@ export function joinGame(
         return;
     }
 
-    const newPlayer: Player = {
-        name: user.name,
-        index: user.index,
-        score: 0,
-    };
-
-    game.players.push(newPlayer);
+    addPlayerToGame(game, user);
 
     const response: JoinGameResponse = {
         type: ResponseTypes.GAME_JOINED,
@@ -105,25 +146,31 @@ export function joinGame(
     };
     ws.send(JSON.stringify(response));
 
-    const notification: PlayerJoinNotification = {
-        type: ResponseTypes.PLAYER_JOINED,
-        data: {
-            playerName: user.name,
-            playerCount: game.players.length,
-        },
-        id: 0,
-    };
+    const host = users.find((user) => user.index === game.hostId);
 
-    broadcastToGame(game, notification);
+    if (host) {
+        notifyPlayers(game, user.name, host);
+    } else {
+        const notification: PlayerJoinNotification = {
+            type: ResponseTypes.PLAYER_JOINED,
+            data: {
+                playerName: user.name,
+                playerCount: game.players.length,
+            },
+            id: 0,
+        };
 
-    const updatePlayers: UpdatePlayersResponse = {
-        type: ResponseTypes.UPDATE_PLAYERS,
-        data: game.players.map((p) => ({
-            name: p.name,
-            index: p.index,
-            score: p.score,
-        })),
-        id: 0,
-    };
-    broadcastToGame(game, updatePlayers);
+        const updatePlayers: UpdatePlayersResponse = {
+            type: ResponseTypes.UPDATE_PLAYERS,
+            data: game.players.map((player) => ({
+                name: player.name,
+                index: player.index,
+                score: player.score,
+            })),
+            id: 0,
+        };
+
+        broadcastToGame(game, notification);
+        broadcastToGame(game, updatePlayers);
+    }
 }

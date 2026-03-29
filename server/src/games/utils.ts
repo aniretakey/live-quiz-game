@@ -1,4 +1,3 @@
-import WebSocket from "ws";
 import { Game } from "../types";
 
 export const getGameByCode = (gameCode: string, games: Game[]) => {
@@ -7,7 +6,7 @@ export const getGameByCode = (gameCode: string, games: Game[]) => {
 
 export function broadcastToGame(game: Game, msg: any) {
     game.players.forEach((player) => {
-        if (player.ws && player.ws.readyState === WebSocket.OPEN) {
+        if (player.ws) {
             player.ws.send(JSON.stringify(msg));
         }
     });

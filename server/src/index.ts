@@ -15,43 +15,36 @@ const users: User[] = [];
 const games: Game[] = []
 
 wss.on('connection', (ws: WebSocket) => {
-    console.log('Connected!');
     clients.push(ws);
-    console.log('clients', clients)
 
-    ws.on('message', (msg) => {
-        const command = JSON.parse(msg.toString());
-        const commandType = command.type
-
-        // TODO: сообщения только для тестирования, потом удалить!
-        clients.forEach((client) => {
-            if (client !== ws && client.readyState === WebSocket.OPEN && commandType !== CommandTypes.REGISTER) {
-                client.send(msg);
-            }
-        });
-
-        if (commandType === CommandTypes.REGISTER) {
-            handleReg(ws, command.data, users);
-            return;
-        }
-
+    ws.on('message', (raw) => {
+        const command = JSON.parse(raw.toString());
         const user = getUserByWs(ws, users);
 
-        if (user) {
-            if (commandType === CommandTypes.CREATE_GAME) {
-                createGame(ws, command.data, games, user);
+        switch (command.type) {
+            case CommandTypes.REGISTER:
+                handleReg(ws, command.data, users);
                 return;
-            }
 
-            if (commandType === CommandTypes.JOIN_GAME) {
-                joinGame(ws, command.data, games, user);
+            case CommandTypes.CREATE_GAME:
+                if (user) {
+                    createGame(ws, command.data, games, user);
+                }
                 return;
-            }
+
+            case CommandTypes.JOIN_GAME:
+                if (user) {
+                    joinGame(ws, command.data, games, user, users);
+                }
+                return;
+
+            default:
+                return;
         }
-    })
-
-    ws.on('close', (ws) => {
-        console.log('Closed!, number: ', ws);
-        // clients.splice(clients.indexOf(ws), 1);
     });
-})
+
+    ws.on('close', () => {
+        const index = clients.indexOf(ws);
+        if (index !== -1) clients.splice(index, 1);
+    });
+});
