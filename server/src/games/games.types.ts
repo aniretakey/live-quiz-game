@@ -1,10 +1,8 @@
-import { CommandTypes, Question, ResponseTypes } from "../types";
+import { CommandTypes, CreateGameData, JoinGameData, ResponseTypes, StartGameData } from "../types";
 
 export type CreateGameRequest = {
     type: CommandTypes.CREATE_GAME,
-    data: {
-        questions: Question[]
-    },
+    data: CreateGameData,
     "id": 0
 }
 
@@ -27,17 +25,13 @@ export type CreateGameError = {
 
 export type JoinGameRequest = {
     "type": CommandTypes.JOIN_GAME,
-    "data": {
-        "code": string
-    },
+    "data": JoinGameData,
     "id": 0
 }
 
 export type JoinGameResponse = {
     "type": ResponseTypes.GAME_JOINED,
-    "data": {
-        "gameId": string
-    },
+    "data": StartGameData,
     "id": 0
 }
 

@@ -56,12 +56,6 @@ export interface User {
     ws?: WebSocket;
 }
 
-export interface WSMessage {
-    type: string;
-    data: any;
-    id: number;
-}
-
 export interface RegData {
     name: string;
     password: string;
