@@ -1,10 +1,13 @@
-import { CommandTypes, Game, ResponseTypes, StartGameData, User } from "../types";
+import { AnswerData, CommandTypes, Game, ResponseTypes, StartGameData, User } from "../types";
 import { broadcastToGame, getGameById } from "./utils";
+import WebSocket from "ws";
 
 function finishGame(game: Game) {
     game.status = 'finished';
 
-    const sorted = [...game.players].sort((a, b) => b.score - a.score);
+    const sorted = game.players
+        .filter(p => String(p.index) !== String(game.hostId))
+        .sort((a, b) => b.score - a.score);
 
     const scoreboard = sorted.map((p, i) => ({
         name: p.name,
@@ -73,7 +76,9 @@ function finishQuestion(game: Game) {
         id: 0,
     });
 
-    nextStep(game);
+    setTimeout(() => {
+        nextStep(game);
+    }, 3000);
 }
 
 function sendQuestion(game: Game) {
@@ -132,4 +137,53 @@ export function startGame(
     game.currentQuestion = 0;
 
     sendQuestion(game);
+}
+
+export function handleAnswer(
+    ws: WebSocket,
+    data: AnswerData,
+    games: Game[],
+    user: User,
+) {
+    const game = getGameById(data.gameId, games);
+
+    if (!game) return;
+    if (game.status !== 'in_progress') return;
+    if (data.questionIndex !== game.currentQuestion) return;
+
+    if (game.playerAnswers.has(user.index)) return;
+
+    const timestamp = Date.now();
+
+    game.playerAnswers.set(user.index, {
+        answerIndex: data.answerIndex,
+        timestamp,
+    });
+
+    const player = game.players.find(p => p.index === user.index);
+    if (player) {
+        player.hasAnswered = true;
+        player.answerTime = timestamp;
+    }
+
+    ws.send(JSON.stringify({
+        type: ResponseTypes.ANSWER_ACCEPTED,
+        data: {
+            questionIndex: data.questionIndex,
+        },
+        id: 0,
+    }));
+
+    const activePlayers = game.players.filter(
+        p => String(p.index) !== String(game.hostId)
+    );
+
+    const allAnswered = activePlayers.every(p =>
+        game.playerAnswers.has(p.index)
+    );
+
+    if (allAnswered) {
+        clearTimeout(game.questionTimer);
+        finishQuestion(game);
+    }
 }
